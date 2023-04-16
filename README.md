@@ -1,13 +1,25 @@
-( * : 為團隊需自行修改部分 )
-# *Gaas-repo-template ( 換成自己遊戲名稱 )
+# UNO Flip
 
 # Intro your game
+正反面都能玩，比傳統 UNO 更刺激有趣。
 
+- 開箱文
+https://punchboardgame.pixnet.net/blog/post/467494145
 
-# My Practice Stack
-- 描述一下你們使用的軟體方法論 :
-   1. *...
+- 試玩影片
+https://www.youtube.com/watch?v=h4AHBt1cGGo
+
+# Software Practice Stack
+- 領域驅動設計 (DDD)
+- 事件風暴 (Event storming): 梳理出一條最有價值的路徑
+- Example Mapping: 梳理這條路上的規則
+- 物件導向分析/設計 (OOA/D): 梳理這條路上的複雜概念
+- ATDD (Acceptance Test Driven Development)
+- Clean Architecture
 
 ### Tech Stack
-- 描述一下你們使用的技術、框架、語言 :
-   1. *...
+- 前端: 待討論
+- 後端: Java
+   - springboot
+   - WebSocket
+   - MongoDB
