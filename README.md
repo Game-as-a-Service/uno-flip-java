@@ -21,8 +21,12 @@ https://www.youtube.com/watch?v=h4AHBt1cGGo
 - Clean Architecture
 
 ### Tech Stack
-- 前端: 待討論
+- 前端: React
 - 後端: Java
-   - springboot
+   - SpringBoot
    - WebSocket
    - MongoDB
+- DevOps:
+   - Docker
+   - Trunk-based development (TBD)
+   - Walking skeleton
