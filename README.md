@@ -30,3 +30,7 @@ https://www.youtube.com/watch?v=h4AHBt1cGGo
    - Docker
    - Trunk-based development (TBD)
    - Walking skeleton
+
+# Links
+- miro: https://miro.com/app/board/uXjVMQX1SO0=/
+- meeting: https://kindly-verdict-328.notion.site/dea89155ddec42ffa30256739c00ca46?v=5286d0bfca404ce78787614984b36966
