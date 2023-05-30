@@ -31,6 +31,9 @@ https://www.youtube.com/watch?v=h4AHBt1cGGo
    - Trunk-based development (TBD)
    - Walking skeleton
 
+# 成員名單
+- 後端: Shadow(隊長)、nonamefour、ankertim、Max、UaJbee
+- 前端: Hannah777、Archie (奇薩)、Shirley
 # Links
 - miro: https://miro.com/app/board/uXjVMQX1SO0=/
 - meeting: https://kindly-verdict-328.notion.site/dea89155ddec42ffa30256739c00ca46?v=5286d0bfca404ce78787614984b36966
