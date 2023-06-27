@@ -37,3 +37,4 @@ https://www.youtube.com/watch?v=h4AHBt1cGGo
 # Links
 - miro: https://miro.com/app/board/uXjVMQX1SO0=/
 - meeting: https://kindly-verdict-328.notion.site/dea89155ddec42ffa30256739c00ca46?v=5286d0bfca404ce78787614984b36966
+- api 接口文件: https://kindly-verdict-328.notion.site/API-4db7a832a38849238ed5c0cba6c8ace5?pvs=4
