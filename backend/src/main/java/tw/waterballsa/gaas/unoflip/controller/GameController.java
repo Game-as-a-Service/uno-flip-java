@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import tw.waterballsa.gaas.unoflip.enums.StatusCode;
-import tw.waterballsa.gaas.unoflip.service.GameService;
+import tw.waterballsa.gaas.unoflip.service.GameUseCase;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
 import tw.waterballsa.gaas.unoflip.vo.JoinResult;
 import tw.waterballsa.gaas.unoflip.vo.Response;
@@ -13,14 +13,14 @@ import tw.waterballsa.gaas.unoflip.vo.Response;
 @RestController
 public class GameController {
 
-    private final GameService gameService;
+    private final GameUseCase gameUseCase;
 
-    public GameController(GameService gameService) {
-        this.gameService = gameService;
+    public GameController(GameUseCase gameUseCase) {
+        this.gameUseCase = gameUseCase;
     }
 
     @PostMapping("join/{playerId}")
     public Response<JoinResult> join(@PathVariable String playerId, @RequestBody JoinRequest joinRequest) {
-        return new Response<>(StatusCode.OK.getCode(), "join successfully", gameService.join(playerId, joinRequest.playerName()));
+        return new Response<>(StatusCode.OK.getCode(), "join successfully", gameUseCase.join(playerId, joinRequest.playerName()));
     }
 }
