@@ -10,14 +10,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import tw.waterballsa.gaas.unoflip.enums.StatusCode;
+import tw.waterballsa.gaas.unoflip.presenter.StatusCode;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
 import tw.waterballsa.gaas.unoflip.vo.JoinResult;
 import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;
 import tw.waterballsa.gaas.unoflip.vo.Response;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

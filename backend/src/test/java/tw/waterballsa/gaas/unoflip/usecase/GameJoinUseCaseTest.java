@@ -1,4 +1,4 @@
-package tw.waterballsa.gaas.unoflip.service;
+package tw.waterballsa.gaas.unoflip.usecase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GameUseCaseTest {
+class GameJoinUseCaseTest {
     private static final String MAX_PLAYER_ID = "max456";
     private static final String SHADOW_PLAYER_ID = "shadow123";
     private final String MAX_NAME = "Max";
@@ -32,7 +32,7 @@ class GameUseCaseTest {
     private UnoFlipGame unoFlipGame1;
     @Mock
     private UnoFlipGame unoFlipGame2;
-    private GameUseCase sut;
+    private GameJoinUseCase sut;
     private List<PlayerInfo> playerInfoList;
     private GameJoinResult shadowJoinResult;
     private GameJoinResult maxJoinResult;
@@ -42,7 +42,7 @@ class GameUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        sut = new GameUseCase(gameRepo);
+        sut = new GameJoinUseCase(gameRepo);
     }
 
     @Test

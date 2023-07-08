@@ -1,7 +1,6 @@
 package tw.waterballsa.gaas.unoflip.presenter;
 
 import org.springframework.stereotype.Service;
-import tw.waterballsa.gaas.unoflip.enums.StatusCode;
 import tw.waterballsa.gaas.unoflip.vo.GameJoinResult;
 import tw.waterballsa.gaas.unoflip.vo.JoinResult;
 import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;

@@ -1,4 +1,4 @@
-package tw.waterballsa.gaas.unoflip.enums;
+package tw.waterballsa.gaas.unoflip.presenter;
 
 public enum StatusCode {
     OK(0);
