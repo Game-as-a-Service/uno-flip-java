@@ -12,6 +12,7 @@ import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -45,6 +46,23 @@ class GameUseCaseTest {
     }
 
     @Test
+    void should_create_new_game_when_no_available_game() {
+        given_no_available_game();
+        given_next_table_id_is_123();
+
+        when_join_game_then_table_id_is_123();
+    }
+
+    @Test
+    void should_save_game() {
+        when(gameRepo.getAvailableGame()).thenReturn(Optional.of(unoFlipGame));
+
+        sut.join(SHADOW_PLAYER_ID, SHADOW_NAME);
+
+        verify(gameRepo).saveGame(unoFlipGame);
+    }
+
+    @Test
     void two_player_join_different_game() {
         init_two_games();
         given_shadow_join_table_1();
@@ -74,20 +92,11 @@ class GameUseCaseTest {
         then_shadow_and_max_should_in_the_same_game();
     }
 
-    @Test
-    void should_save_game() {
-        when(gameRepo.getAvailableGame()).thenReturn(unoFlipGame);
-
-        sut.join(SHADOW_PLAYER_ID, SHADOW_NAME);
-
-        verify(gameRepo).saveGame(unoFlipGame);
-    }
-
     private void init_game() {
         playerInfoList = new ArrayList<>();
         when(unoFlipGame.getPlayerInfoList()).thenReturn(playerInfoList);
         lenient().when(unoFlipGame.getTableId()).thenReturn(1);
-        when(gameRepo.getAvailableGame()).thenReturn(unoFlipGame);
+        when(gameRepo.getAvailableGame()).thenReturn(Optional.of(unoFlipGame));
     }
 
     private void init_two_games() {
@@ -99,7 +108,11 @@ class GameUseCaseTest {
         when(unoFlipGame2.getPlayerInfoList()).thenReturn(playerInfoList2);
         when(unoFlipGame2.getTableId()).thenReturn(2);
 
-        when(gameRepo.getAvailableGame()).thenReturn(unoFlipGame1, unoFlipGame2);
+        doReturn(Optional.of(unoFlipGame1), Optional.of(unoFlipGame2)).when(gameRepo).getAvailableGame();
+    }
+
+    private void given_no_available_game() {
+        when(gameRepo.getAvailableGame()).thenReturn(Optional.empty());
     }
 
     private void given_shadow_is_the_first_player_of_the_game() {
@@ -114,8 +127,16 @@ class GameUseCaseTest {
         playerInfoList1.add(new PlayerInfo(SHADOW_PLAYER_ID, SHADOW_NAME, 1));
     }
 
+    private void given_next_table_id_is_123() {
+        when(gameRepo.generateTableId()).thenReturn(123);
+    }
+
     private void given_max_join_table_2() {
         playerInfoList2.add(new PlayerInfo(MAX_PLAYER_ID, MAX_NAME, 1));
+    }
+
+    private void when_join_game_then_table_id_is_123() {
+        assertThat(sut.join(SHADOW_PLAYER_ID, SHADOW_NAME).tableId()).isEqualTo(123);
     }
 
     private void when_shadow_join() {

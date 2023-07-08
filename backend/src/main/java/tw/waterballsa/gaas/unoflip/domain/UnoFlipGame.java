@@ -38,6 +38,6 @@ public class UnoFlipGame {
     }
 
     public int getTableId() {
-        return 0;
+        return tableId;
     }
 }

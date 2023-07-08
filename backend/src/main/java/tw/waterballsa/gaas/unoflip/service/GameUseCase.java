@@ -14,7 +14,7 @@ public class GameUseCase {
     }
 
     public GameJoinResult join(String playerId, String playerName) {
-        UnoFlipGame availableGame = gameRepo.getAvailableGame();
+        UnoFlipGame availableGame = gameRepo.getAvailableGame().orElseGet(() -> new UnoFlipGame(gameRepo.generateTableId()));
         availableGame.join(playerId, playerName);
         gameRepo.saveGame(availableGame);
 
