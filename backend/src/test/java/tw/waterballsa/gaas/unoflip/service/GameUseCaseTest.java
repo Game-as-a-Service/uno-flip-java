@@ -19,8 +19,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GameUseCaseTest {
-    private static final String MAX_PLAYER_ID = "max#456";
-    private static final String SHADOW_PLAYER_ID = "shadow#123";
+    private static final String MAX_PLAYER_ID = "max456";
+    private static final String SHADOW_PLAYER_ID = "shadow123";
     private final String MAX_NAME = "Max";
     private final String SHADOW_NAME = "Shadow";
 
@@ -55,11 +55,11 @@ class GameUseCaseTest {
 
     @Test
     void should_save_game() {
-        when(gameRepo.getAvailableGame()).thenReturn(Optional.of(unoFlipGame));
+        when(gameRepo.getAvailable()).thenReturn(Optional.of(unoFlipGame));
 
         sut.join(SHADOW_PLAYER_ID, SHADOW_NAME);
 
-        verify(gameRepo).saveGame(unoFlipGame);
+        verify(gameRepo).save(unoFlipGame);
     }
 
     @Test
@@ -96,7 +96,7 @@ class GameUseCaseTest {
         playerInfoList = new ArrayList<>();
         when(unoFlipGame.getPlayerInfoList()).thenReturn(playerInfoList);
         lenient().when(unoFlipGame.getTableId()).thenReturn(1);
-        when(gameRepo.getAvailableGame()).thenReturn(Optional.of(unoFlipGame));
+        when(gameRepo.getAvailable()).thenReturn(Optional.of(unoFlipGame));
     }
 
     private void init_two_games() {
@@ -108,11 +108,11 @@ class GameUseCaseTest {
         when(unoFlipGame2.getPlayerInfoList()).thenReturn(playerInfoList2);
         when(unoFlipGame2.getTableId()).thenReturn(2);
 
-        doReturn(Optional.of(unoFlipGame1), Optional.of(unoFlipGame2)).when(gameRepo).getAvailableGame();
+        doReturn(Optional.of(unoFlipGame1), Optional.of(unoFlipGame2)).when(gameRepo).getAvailable();
     }
 
     private void given_no_available_game() {
-        when(gameRepo.getAvailableGame()).thenReturn(Optional.empty());
+        when(gameRepo.getAvailable()).thenReturn(Optional.empty());
     }
 
     private void given_shadow_is_the_first_player_of_the_game() {

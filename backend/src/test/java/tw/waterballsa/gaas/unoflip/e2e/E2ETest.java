@@ -16,6 +16,9 @@ import tw.waterballsa.gaas.unoflip.vo.JoinResult;
 import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;
 import tw.waterballsa.gaas.unoflip.vo.Response;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,14 +36,14 @@ public class E2ETest {
 
     @Test
     void join_game() throws Exception {
-        String playerAId = "playerA#123";
+        String playerAId = "playerA123";
         String playerAName = "PlayerA";
 
         Response<JoinResult> responseOfPlayerA = when_send(playerAId, playerAName);
 
         then_join_success(responseOfPlayerA);
 
-        String playerBId = "playerB#456";
+        String playerBId = "playerB456";
         String playerBName = "PlayerB";
 
         Response<JoinResult> responseOfPlayerB = when_send(playerBId, playerBName);
