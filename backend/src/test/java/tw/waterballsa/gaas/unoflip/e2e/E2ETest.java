@@ -3,18 +3,27 @@ package tw.waterballsa.gaas.unoflip.e2e;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.FluxExchangeResult;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import tw.waterballsa.gaas.unoflip.presenter.StatusCode;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
 import tw.waterballsa.gaas.unoflip.vo.JoinResult;
 import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;
 import tw.waterballsa.gaas.unoflip.vo.Response;
+
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,9 +39,36 @@ public class E2ETest {
     private ObjectMapper mapper;
     @Autowired
     private MockMvc mockMvc;
+    private WebTestClient client;
+    private ExecutorService executor;
+
+    @BeforeEach
+    void setUp() {
+        executor = Executors.newFixedThreadPool(1);
+        client = WebTestClient.bindToServer().responseTimeout(Duration.ofMinutes(5)).baseUrl("http://localhost:" + port).build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        executor.shutdown();
+    }
+
+    @Test
+    void name() {
+        FluxExchangeResult<String> result = client.get().uri("/sse/playerA123").accept(MediaType.TEXT_EVENT_STREAM).exchange()
+                .expectStatus().isOk().returnResult(String.class);
+        result.getResponseBody().toStream().forEach(System.out::println);
+    }
 
     @Test
     void join_game() throws Exception {
+        executor.execute(() -> {
+            FluxExchangeResult<String> result = client.get().uri("/sse/playerA123").accept(MediaType.TEXT_EVENT_STREAM).exchange()
+                    .expectStatus().isOk().returnResult(String.class);
+            result.getResponseBody().toStream().forEach(System.out::println);
+        });
+
+        TimeUnit.SECONDS.sleep(3);
         String playerAId = "playerA123";
         String playerAName = "PlayerA";
 
