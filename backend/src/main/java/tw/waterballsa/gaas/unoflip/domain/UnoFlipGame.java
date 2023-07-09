@@ -22,19 +22,11 @@ public class UnoFlipGame {
     }
 
     private int getAvailablePosition() {
-        return positions.incrementAndGet();
+        return positions.getAndIncrement();
     }
 
     public List<PlayerInfo> getPlayerInfoList() {
         return Collections.unmodifiableList(playerInfoList);
-    }
-
-    public int getPosition(String playerId) {
-        return playerInfoList.stream()
-                .filter(playerInfo -> playerId.equals(playerInfo.playerId()))
-                .findFirst()
-                .map(PlayerInfo::position)
-                .orElseThrow(()-> new RuntimeException("player " + playerId + " is not in game"));
     }
 
     public int getTableId() {
