@@ -14,10 +14,11 @@ public class SseService {
 
     public SseEmitter registerSseEmitter(String playerId) {
         SseEmitter emitter = new SseEmitter(60L * 1000L);
-        emitter.onCompletion(() -> System.out.println("SseEmitter is completed"));
-        emitter.onTimeout(() -> System.out.println("SseEmitter is timed out"));
-        emitter.onError((ex) -> System.out.println("SseEmitter got error:" + ex.getMessage()));
+        emitter.onCompletion(() -> System.out.printf("[%s] SseEmitter is completed%n", playerId));
+        emitter.onTimeout(() -> System.out.printf("[%s] SseEmitter is timed out%n", playerId));
+        emitter.onError((ex) -> System.out.printf("[%s] SseEmitter got error:%s%n", playerId, ex.getMessage()));
         emitterMap.put(playerId, emitter);
+        System.out.printf("[%s] SseEmitter register success%n", playerId);
         return emitter;
     }
 
@@ -30,7 +31,7 @@ public class SseService {
             if (emitter == null) {
                 return;
             }
-            System.out.println("send event to " + playerId + ", data: " + broadcastEvent.eventBody());
+            System.out.printf("[%s] send event to %s, data: %s%n", playerId, playerId, broadcastEvent.eventBody());
             try {
                 emitter.send(broadcastEvent.eventBody());
             } catch (IOException e) {
