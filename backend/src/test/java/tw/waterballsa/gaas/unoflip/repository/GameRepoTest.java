@@ -17,6 +17,18 @@ class GameRepoTest {
     }
 
     @Test
+    void table_id_not_exist() {
+        Assertions.assertThat(sut.get(123)).isNotPresent();
+    }
+
+    @Test
+    void table_id_exist() {
+        sut.save(new UnoFlipGame(123));
+
+        Assertions.assertThat(sut.get(123)).isPresent();
+    }
+
+    @Test
     void no_available_game() {
         assertThat(sut.getAvailable()).isNotPresent();
     }
