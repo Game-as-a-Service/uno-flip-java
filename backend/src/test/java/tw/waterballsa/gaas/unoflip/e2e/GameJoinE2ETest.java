@@ -62,7 +62,7 @@ public class GameJoinE2ETest {
     void join_game() throws Exception {
         register_sse_client_for_playerA123();
 
-        TimeUnit.MILLISECONDS.sleep(700);
+        TimeUnit.MILLISECONDS.sleep(800);
 
         Response<JoinResult> playerAResponse = when_send_join(PLAYER_A_ID, "PlayerA");
         then_join_success(playerAResponse);

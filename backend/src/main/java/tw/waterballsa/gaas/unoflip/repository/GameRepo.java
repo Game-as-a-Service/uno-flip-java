@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class GameRepo {
-    private static final int MAX_PLAYER_NUMBER = 4;
     private final AtomicInteger tableIdCounter = new AtomicInteger(1);
     private final Set<UnoFlipGame> games = new HashSet<>();
 
@@ -19,7 +18,7 @@ public class GameRepo {
     }
 
     public Optional<UnoFlipGame> getAvailable() {
-        return games.stream().filter(game -> game.getPlayerInfoList().size() < MAX_PLAYER_NUMBER).findFirst();
+        return games.stream().filter(game -> !game.isFull()).findFirst();
     }
 
     public void save(UnoFlipGame game) {
