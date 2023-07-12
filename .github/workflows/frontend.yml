@@ -1,0 +1,38 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: ['main']
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: frontend
+
+      - name: Run Tests
+        run: yarn test
+        working-directory: frontend
+
+      - name: Build
+        run: yarn build
+        working-directory: frontend
