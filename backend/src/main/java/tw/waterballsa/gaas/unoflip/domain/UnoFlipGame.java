@@ -46,4 +46,28 @@ public class UnoFlipGame {
 
         return playerInfoList.size() + 1;
     }
+
+    public GameStatus getStatus() {
+        return null;
+    }
+
+    public List<Card> getDrawPile() {
+        return null;
+    }
+
+    public List<Card> getDiscardPile() {
+        return null;
+    }
+
+    public List<Card> getPlayerHandCard(String playerId) {
+        return null;
+    }
+
+    public String getActionPlayerId() {
+        return null;
+    }
+
+    public Direction getDirection() {
+        return null;
+    }
 }
