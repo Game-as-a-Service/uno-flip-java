@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tw.waterballsa.gaas.unoflip.domain.UnoFlipGame;
 import tw.waterballsa.gaas.unoflip.repository.GameRepo;
 import tw.waterballsa.gaas.unoflip.vo.GameJoinResult;
-import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;
+import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +149,7 @@ class GameJoinUseCaseTest {
 
     private void then_shadow_should_at_position(int expectedPosition) {
         Integer shadowPosition = shadowJoinResult.playerInfoList().stream()
-                .filter(playerInfo -> SHADOW_PLAYER_ID.equals(playerInfo.playerId()))
+                .filter(playerInfo -> SHADOW_PLAYER_ID.equals(playerInfo.id()))
                 .map(PlayerInfo::position)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("player %s not int game".formatted(SHADOW_PLAYER_ID)));
@@ -166,7 +166,7 @@ class GameJoinUseCaseTest {
 
     private void then_max_should_at_position(int exceptedPosition) {
         Integer maxPosition = maxJoinResult.playerInfoList().stream()
-                .filter(playerInfo -> MAX_PLAYER_ID.equals(playerInfo.playerId()))
+                .filter(playerInfo -> MAX_PLAYER_ID.equals(playerInfo.id()))
                 .map(PlayerInfo::position)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("player %s not int game".formatted(MAX_PLAYER_ID)));

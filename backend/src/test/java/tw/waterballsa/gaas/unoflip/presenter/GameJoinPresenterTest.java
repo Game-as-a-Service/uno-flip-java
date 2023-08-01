@@ -3,6 +3,9 @@ package tw.waterballsa.gaas.unoflip.presenter;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
+import tw.waterballsa.gaas.unoflip.event.BroadcastEvent;
+import tw.waterballsa.gaas.unoflip.event.JoinBroadcastEvent;
 import tw.waterballsa.gaas.unoflip.vo.*;
 
 import java.util.Arrays;
@@ -52,8 +55,8 @@ class GameJoinPresenterTest {
     }
 
     private void verify_broadcast(BroadcastEvent actual) {
-        JoinEvent targetJoinEvent = new JoinEvent("targetPlayerId", "targetPlayerName", 2);
-        BroadcastEvent expected = new BroadcastEvent(Arrays.asList("otherPlayerId", "targetPlayerId"), targetJoinEvent);
+        JoinBroadcastEvent targetJoinBroadcastEvent = new JoinBroadcastEvent(EventType.JOIN.getCode(), "targetPlayerId", "targetPlayerName", 2);
+        BroadcastEvent expected = new BroadcastEvent(Arrays.asList("otherPlayerId", "targetPlayerId"), targetJoinBroadcastEvent);
 
         Assertions.assertThat(actual).isEqualTo(expected);
     }

@@ -2,11 +2,13 @@ package tw.waterballsa.gaas.unoflip.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import tw.waterballsa.gaas.unoflip.vo.BroadcastEvent;
+import tw.waterballsa.gaas.unoflip.event.BroadcastEvent;
+import tw.waterballsa.gaas.unoflip.event.PersonalEvent;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class SseService {
@@ -26,17 +28,27 @@ public class SseService {
         if (null == broadcastEvent.playerIds() || broadcastEvent.playerIds().isEmpty()) {
             return;
         }
+
         for (String playerId : broadcastEvent.playerIds()) {
-            SseEmitter emitter = emitterMap.get(playerId);
-            if (emitter == null) {
-                return;
-            }
-            System.out.printf("[%s] send event to %s, data: %s%n", playerId, playerId, broadcastEvent.eventBody());
+            Optional.ofNullable(emitterMap.get(playerId)).ifPresent(emitter -> {
+                System.out.printf("[broadcast] send eventBody to %s, data: %s%n", playerId, broadcastEvent.eventBody());
+                try {
+                    emitter.send(broadcastEvent.eventBody());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+
+    public void sendMessage(PersonalEvent personalEvent) {
+        Optional.ofNullable(emitterMap.get(personalEvent.playerId())).ifPresent(emitter -> {
+            System.out.printf("[personal] send eventBody to %s, data: %s%n", personalEvent.playerId(), personalEvent.eventBody());
             try {
-                emitter.send(broadcastEvent.eventBody());
+                emitter.send(personalEvent.eventBody());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        });
     }
 }

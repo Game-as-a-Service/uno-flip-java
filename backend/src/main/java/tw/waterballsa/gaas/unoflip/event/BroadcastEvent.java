@@ -1,4 +1,4 @@
-package tw.waterballsa.gaas.unoflip.vo;
+package tw.waterballsa.gaas.unoflip.event;
 
 import java.util.List;
 

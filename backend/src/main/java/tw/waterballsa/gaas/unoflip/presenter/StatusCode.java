@@ -1,5 +1,8 @@
 package tw.waterballsa.gaas.unoflip.presenter;
 
+import lombok.Getter;
+
+@Getter
 public enum StatusCode {
     OK(0);
 
@@ -9,7 +12,4 @@ public enum StatusCode {
         this.code = code;
     }
 
-    public int getCode() {
-        return code;
-    }
 }

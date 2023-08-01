@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tw.waterballsa.gaas.unoflip.presenter.StatusCode;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
 import tw.waterballsa.gaas.unoflip.vo.JoinResult;
-import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;
+import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
 import tw.waterballsa.gaas.unoflip.vo.Response;
 
 import java.time.Duration;
@@ -95,7 +95,7 @@ public class GameJoinE2ETest {
 
     private void playerA_and_playerB_should_in_the_same_game(Response<JoinResult> responseOfPlayerA, Response<JoinResult> responseOfPlayerB) {
         assertThat(responseOfPlayerA.payload().tableId()).isEqualTo(responseOfPlayerB.payload().tableId());
-        assertThat(responseOfPlayerB.payload().otherPlayerInfo().stream().map(PlayerInfo::playerId).anyMatch(PLAYER_A_ID::equals)).isTrue();
+        assertThat(responseOfPlayerB.payload().otherPlayerInfo().stream().map(PlayerInfo::id).anyMatch(PLAYER_A_ID::equals)).isTrue();
     }
 
     private void then_join_success(Response<JoinResult> responseOfPlayerA) {

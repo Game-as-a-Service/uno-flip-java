@@ -1,7 +1,7 @@
 package tw.waterballsa.gaas.unoflip.e2e;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,13 +13,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
-import tw.waterballsa.gaas.unoflip.domain.Card;
-import tw.waterballsa.gaas.unoflip.domain.GameStatus;
 import tw.waterballsa.gaas.unoflip.domain.UnoFlipGame;
+import tw.waterballsa.gaas.unoflip.domain.eumns.Card;
+import tw.waterballsa.gaas.unoflip.domain.eumns.GameStatus;
+import tw.waterballsa.gaas.unoflip.presenter.EventType;
 import tw.waterballsa.gaas.unoflip.repository.GameRepo;
-import tw.waterballsa.gaas.unoflip.scheduler.GameStartedBroadcastMessage;
-import tw.waterballsa.gaas.unoflip.scheduler.GameStartedPersonalMessage;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
+import tw.waterballsa.gaas.unoflip.event.StartedBroadcastEvent;
+import tw.waterballsa.gaas.unoflip.event.StartedPersonalEvent;
 
 import java.time.Duration;
 import java.util.*;
@@ -34,6 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class GameStartE2ETest {
+    private final Map<String, List<String>> sseMessagesOfPlayer = new HashMap<>();
+    private final Map<String, CountDownLatch> sseMessageCountDownLatchOfPlayer = new HashMap<>();
     @Value(value = "${local.server.port}")
     private int port;
     @Autowired
@@ -44,13 +47,11 @@ public class GameStartE2ETest {
     private GameRepo gameRepo;
     private ExecutorService executor;
     private WebTestClient client;
-    private Map<String, List<String>> sseMessagesOfPlayer = new HashMap<>();
-    private Map<String, CountDownLatch> sseMessageCountDownLatchOfPlayer = new HashMap<>();
     private UnoFlipGame game;
 
     @BeforeEach
     void setUp() {
-        executor = Executors.newFixedThreadPool(1);
+        executor = Executors.newFixedThreadPool(4);
         client = WebTestClient.bindToServer().responseTimeout(Duration.ofMinutes(5)).baseUrl("http://localhost:" + port).build();
     }
 
@@ -78,6 +79,7 @@ public class GameStartE2ETest {
 
     private void given_player_join_game(String playerId, String playerA) throws Exception {
         register_sse_client_for_(playerId);
+        TimeUnit.MILLISECONDS.sleep(1000);
         send_join_game(playerId, playerA);
     }
 
@@ -94,26 +96,60 @@ public class GameStartE2ETest {
     }
 
     private void should_send_same_broadcast_message_for(String... playerIds) throws JsonProcessingException {
-        for (String playerId : playerIds) {
-            String broadcastMessage = sseMessagesOfPlayer.get(playerId).get(1);
-            GameStartedBroadcastMessage gameStartedBroadcastMessage = mapper.readValue(broadcastMessage, new TypeReference<>() {
-            });
+        StartedBroadcastEvent expected = new StartedBroadcastEvent(
+                EventType.STARTED.getCode(),
+                game.getActionPlayerId(),
+                game.getDirection().getCode(),
+                game.getDiscardPile().get(0).getId(),
+                game.getDrawPile().stream().map(Card::getId).toList());
 
-            Assertions.assertThat(gameStartedBroadcastMessage.getInitPlayerId()).isEqualTo(game.getActionPlayerId());
-            Assertions.assertThat(gameStartedBroadcastMessage.getInitDiscardCard()).isEqualTo(game.getDiscardPile().get(0).getId());
-            Assertions.assertThat(gameStartedBroadcastMessage.getDirection()).isEqualTo(game.getDirection().getCode());
-            Assertions.assertThat(gameStartedBroadcastMessage.getDrawPile()).isEqualTo(game.getDrawPile());
+        for (String playerId : playerIds) {
+            Optional<String> message = getTargetMessage(playerId, EventType.STARTED);
+
+            Assertions.assertThat(message)
+                    .isPresent()
+                    .map(this::toStartedBroadcastEvent)
+                    .hasValue(expected);
+        }
+    }
+
+    private StartedBroadcastEvent toStartedBroadcastEvent(String message) {
+        try {
+            return mapper.readValue(message, StartedBroadcastEvent.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void should_send_personal_message_for(String playerId) throws JsonProcessingException {
-        List<Card> excepted = game.getPlayerHandCard(playerId);
+        List<Integer> excepted = game.getPlayers().getPlayerHandCard(playerId).toCardIds();
 
-        String personalMessage = sseMessagesOfPlayer.get(playerId).get(0);
-        List<Card> actual = mapper.readValue(personalMessage, new TypeReference<GameStartedPersonalMessage>() {
-        }).getHandCards();
+        Optional<String> message = getTargetMessage(playerId, EventType.HAND_CARD);
 
-        Assertions.assertThat(actual).isEqualTo(excepted);
+        Assertions.assertThat(message)
+                .isPresent()
+                .map(this::toStartedPersonalEvent)
+                .hasValue(excepted);
+    }
+
+    private List<Integer> toStartedPersonalEvent(String message) {
+        try {
+            return mapper.readValue(message, StartedPersonalEvent.class).handCards();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Optional<String> getTargetMessage(String playerId, EventType eventType) throws JsonProcessingException {
+        List<String> messages = sseMessagesOfPlayer.get(playerId);
+        for (String message : messages) {
+            JsonNode eventTypeId = mapper.readTree(message).get("eventType");
+            if (null != eventTypeId && eventType.getCode() == eventTypeId.asInt()) {
+                return Optional.of(message);
+            }
+        }
+
+        return Optional.empty();
     }
 
     private void then_discard_pile_has_1_card() {
@@ -122,7 +158,6 @@ public class GameStartE2ETest {
 
     private void then_draw_pile_has_83_cards() {
         Assertions.assertThat(game.getDrawPile()).hasSize(83);
-        ;
     }
 
     private void then_game_is_started() {
