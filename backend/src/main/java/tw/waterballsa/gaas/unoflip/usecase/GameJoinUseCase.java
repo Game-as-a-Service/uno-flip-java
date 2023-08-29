@@ -17,7 +17,7 @@ public class GameJoinUseCase {
     private final GameJoinPresenter gameJoinPresenter;
     private final SseService sseService;
 
-    public Response<JoinResult> join(String playerId, String playerName) {
+    public synchronized Response<JoinResult> join(String playerId, String playerName) {
         UnoFlipGame availableGame = gameRepo.getAvailable().orElseGet(() -> new UnoFlipGame(gameRepo.generateTableId()));
         availableGame.join(playerId, playerName);
         gameRepo.save(availableGame);
