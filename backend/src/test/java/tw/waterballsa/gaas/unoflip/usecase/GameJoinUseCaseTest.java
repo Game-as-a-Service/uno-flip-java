@@ -67,16 +67,16 @@ class GameJoinUseCaseTest {
 
     @Test
     void should_save_game() {
-        when(gameRepo.getAvailable()).thenReturn(Optional.of(unoFlipGame));
+        given_one_available_game();
 
-        when_shadow_join();
+        when_someone_join();
 
         verify(gameRepo).save(unoFlipGame);
     }
 
     @Test
     void should_send_event() {
-        BroadcastEvent event = given_broadcast_event();
+        BroadcastEvent event = given_broadcast_event_for_shadow();
 
         when_shadow_join();
 
@@ -86,8 +86,8 @@ class GameJoinUseCaseTest {
     @Test
     void two_player_join_different_game() {
         init_two_games();
-        given_shadow_join_table_1();
-        given_max_join_table_2();
+        given_shadow_join_game_1();
+        given_max_join_game_2();
 
         when_shadow_join();
         then_shadow_should_at_position_1();
@@ -121,7 +121,7 @@ class GameJoinUseCaseTest {
         playerInfoList = new ArrayList<>();
         when(unoFlipGame.getPlayerInfoList()).thenReturn(playerInfoList);
         lenient().when(unoFlipGame.getTableId()).thenReturn(1);
-        when(gameRepo.getAvailable()).thenReturn(Optional.of(unoFlipGame));
+        given_one_available_game();
     }
 
     private void init_two_games() {
@@ -140,6 +140,10 @@ class GameJoinUseCaseTest {
         when(gameRepo.getAvailable()).thenReturn(Optional.empty());
     }
 
+    private void given_one_available_game() {
+        when(gameRepo.getAvailable()).thenReturn(Optional.of(unoFlipGame));
+    }
+
     private void given_shadow_is_the_first_player_of_the_game() {
         Response<JoinResult> response = given_response(1, 1);
         when(gameJoinPresenter.response(SHADOW_PLAYER_ID, new GameJoinResult(1, playerInfoList))).thenReturn(response);
@@ -150,12 +154,12 @@ class GameJoinUseCaseTest {
         when(gameJoinPresenter.response(MAX_PLAYER_ID, new GameJoinResult(1, playerInfoList))).thenReturn(response);
     }
 
-    private void given_shadow_join_table_1() {
+    private void given_shadow_join_game_1() {
         Response<JoinResult> response = given_response(1, 1);
         when(gameJoinPresenter.response(SHADOW_PLAYER_ID, new GameJoinResult(1, playerInfoList1))).thenReturn(response);
     }
 
-    private void given_max_join_table_2() {
+    private void given_max_join_game_2() {
         Response<JoinResult> response = given_response(2, 1);
         when(gameJoinPresenter.response(MAX_PLAYER_ID, new GameJoinResult(2, playerInfoList2))).thenReturn(response);
     }
@@ -181,7 +185,7 @@ class GameJoinUseCaseTest {
         return joinResult;
     }
 
-    private BroadcastEvent given_broadcast_event() {
+    private BroadcastEvent given_broadcast_event_for_shadow() {
         BroadcastEvent event = mock(BroadcastEvent.class);
         when(gameJoinPresenter.broadcastEvent(eq(SHADOW_PLAYER_ID), isA(GameJoinResult.class))).thenReturn(event);
         return event;
