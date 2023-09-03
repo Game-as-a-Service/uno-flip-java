@@ -18,8 +18,8 @@ import tw.waterballsa.gaas.unoflip.repository.GameRepo;
 import tw.waterballsa.gaas.unoflip.service.SseService;
 import tw.waterballsa.gaas.unoflip.vo.GameJoinResult;
 import tw.waterballsa.gaas.unoflip.vo.GameStartResult;
-import tw.waterballsa.gaas.unoflip.vo.JoinResult;
-import tw.waterballsa.gaas.unoflip.vo.Response;
+import tw.waterballsa.gaas.unoflip.response.JoinResult;
+import tw.waterballsa.gaas.unoflip.response.Response;
 
 import java.util.ArrayList;
 import java.util.List;

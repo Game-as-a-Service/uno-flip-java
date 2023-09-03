@@ -20,7 +20,7 @@ import tw.waterballsa.gaas.unoflip.domain.eumns.Card;
 import tw.waterballsa.gaas.unoflip.domain.eumns.GameStatus;
 import tw.waterballsa.gaas.unoflip.event.StartedBroadcastEvent;
 import tw.waterballsa.gaas.unoflip.event.StartedPersonalEvent;
-import tw.waterballsa.gaas.unoflip.presenter.EventType;
+import tw.waterballsa.gaas.unoflip.event.EventType;
 import tw.waterballsa.gaas.unoflip.repository.GameRepo;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
 

@@ -15,9 +15,9 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import tw.waterballsa.gaas.unoflip.presenter.StatusCode;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
-import tw.waterballsa.gaas.unoflip.vo.JoinResult;
+import tw.waterballsa.gaas.unoflip.response.JoinResult;
 import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
-import tw.waterballsa.gaas.unoflip.vo.Response;
+import tw.waterballsa.gaas.unoflip.response.Response;
 
 import java.time.Duration;
 import java.util.ArrayList;

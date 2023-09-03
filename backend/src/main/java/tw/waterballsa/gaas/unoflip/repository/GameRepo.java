@@ -32,5 +32,4 @@ public class GameRepo {
     public int generateTableId() {
         return tableIdCounter.getAndIncrement();
     }
-
 }

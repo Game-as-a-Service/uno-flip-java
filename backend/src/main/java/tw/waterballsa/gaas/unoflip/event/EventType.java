@@ -1,4 +1,4 @@
-package tw.waterballsa.gaas.unoflip.presenter;
+package tw.waterballsa.gaas.unoflip.event;
 
 import lombok.Getter;
 

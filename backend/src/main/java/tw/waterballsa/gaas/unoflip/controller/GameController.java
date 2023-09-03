@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import tw.waterballsa.gaas.unoflip.usecase.GameJoinUseCase;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
-import tw.waterballsa.gaas.unoflip.vo.JoinResult;
-import tw.waterballsa.gaas.unoflip.vo.Response;
+import tw.waterballsa.gaas.unoflip.response.JoinResult;
+import tw.waterballsa.gaas.unoflip.response.Response;
 
 @RestController
 @RequiredArgsConstructor
