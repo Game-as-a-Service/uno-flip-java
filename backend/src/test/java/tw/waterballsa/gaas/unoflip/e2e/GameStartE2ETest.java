@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +12,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import tw.waterballsa.gaas.unoflip.domain.UnoFlipGame;
 import tw.waterballsa.gaas.unoflip.domain.eumns.Card;
 import tw.waterballsa.gaas.unoflip.domain.eumns.GameStatus;
+import tw.waterballsa.gaas.unoflip.event.StartedBroadcastEvent;
+import tw.waterballsa.gaas.unoflip.event.StartedPersonalEvent;
 import tw.waterballsa.gaas.unoflip.presenter.EventType;
 import tw.waterballsa.gaas.unoflip.repository.GameRepo;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
-import tw.waterballsa.gaas.unoflip.event.StartedBroadcastEvent;
-import tw.waterballsa.gaas.unoflip.event.StartedPersonalEvent;
 
 import java.time.Duration;
 import java.util.*;
@@ -33,18 +35,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @AutoConfigureMockMvc
 public class GameStartE2ETest {
     private final Map<String, List<String>> sseMessagesOfPlayer = new HashMap<>();
     private final Map<String, CountDownLatch> sseMessageCountDownLatchOfPlayer = new HashMap<>();
+
     @Value(value = "${local.server.port}")
     private int port;
+
     @Autowired
     private ObjectMapper mapper;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private GameRepo gameRepo;
+
     private ExecutorService executor;
     private WebTestClient client;
     private UnoFlipGame game;
@@ -53,6 +59,11 @@ public class GameStartE2ETest {
     void setUp() {
         executor = Executors.newFixedThreadPool(4);
         client = WebTestClient.bindToServer().responseTimeout(Duration.ofMinutes(5)).baseUrl("http://localhost:" + port).build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        executor.shutdown();
     }
 
     @Test
@@ -78,12 +89,12 @@ public class GameStartE2ETest {
     }
 
     private void given_player_join_game(String playerId, String playerA) throws Exception {
-        register_sse_client_for_(playerId);
+        register_sse_client_for(playerId);
         TimeUnit.MILLISECONDS.sleep(1000);
         send_join_game(playerId, playerA);
     }
 
-    private void register_sse_client_for_(String playerId) {
+    private void register_sse_client_for(String playerId) {
         sseMessagesOfPlayer.put(playerId, new ArrayList<>());
         sseMessageCountDownLatchOfPlayer.put(playerId, new CountDownLatch(2));
 
@@ -170,8 +181,8 @@ public class GameStartE2ETest {
         this.game = game.get();
     }
 
-    private void when_start_game() throws InterruptedException {
-        TimeUnit.SECONDS.sleep(1);
+    private void when_start_game() {
+        // do nothing, due to game will auto start when player number achieved 4
     }
 
     private void send_join_game(String playerId, String playerName) throws Exception {

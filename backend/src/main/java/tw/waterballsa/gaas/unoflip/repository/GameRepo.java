@@ -2,11 +2,11 @@ package tw.waterballsa.gaas.unoflip.repository;
 
 import org.springframework.stereotype.Repository;
 import tw.waterballsa.gaas.unoflip.domain.UnoFlipGame;
-import tw.waterballsa.gaas.unoflip.domain.eumns.GameStatus;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Repository
 public class GameRepo {
@@ -33,7 +33,4 @@ public class GameRepo {
         return tableIdCounter.getAndIncrement();
     }
 
-    public Set<UnoFlipGame> getWaitingGames() {
-        return games.stream().filter(game -> GameStatus.WAITING == game.getStatus()).collect(Collectors.toSet());
-    }
 }

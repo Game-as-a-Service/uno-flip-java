@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import tw.waterballsa.gaas.unoflip.presenter.StatusCode;
@@ -31,10 +32,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @AutoConfigureMockMvc
 public class GameJoinE2ETest {
 
     private final String PLAYER_A_ID = "playerA123";
+
     @Value(value = "${local.server.port}")
     private int port;
 
@@ -42,6 +45,7 @@ public class GameJoinE2ETest {
     private ObjectMapper mapper;
     @Autowired
     private MockMvc mockMvc;
+
     private WebTestClient client;
     private ExecutorService executor;
     private List<String> responseList;
@@ -77,8 +81,8 @@ public class GameJoinE2ETest {
     private void playerA_should_received_two_join_broadcasts() throws InterruptedException {
         countDownLatch.await();
 
-        assertThat(responseList).containsExactly("{\"playerId\":\"playerA123\",\"playerName\":\"PlayerA\",\"position\":1}",
-                "{\"playerId\":\"playerB456\",\"playerName\":\"PlayerB\",\"position\":2}");
+        assertThat(responseList).containsExactly("{\"eventType\":1,\"playerId\":\"playerA123\",\"playerName\":\"PlayerA\",\"position\":1}",
+                "{\"eventType\":1,\"playerId\":\"playerB456\",\"playerName\":\"PlayerB\",\"position\":2}");
     }
 
     private void register_sse_client_for_playerA123() {

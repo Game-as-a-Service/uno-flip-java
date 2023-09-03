@@ -4,11 +4,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tw.waterballsa.gaas.unoflip.domain.UnoFlipGame;
-import tw.waterballsa.gaas.unoflip.domain.eumns.GameStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class GameRepoTest {
 
@@ -68,21 +65,6 @@ class GameRepoTest {
         assertThat(sut.generateTableId()).isEqualTo(1);
         assertThat(sut.generateTableId()).isEqualTo(2);
         assertThat(sut.generateTableId()).isEqualTo(3);
-    }
-
-    @Test
-    void get_waiting_games() {
-        create_game_with_status(GameStatus.STARTED);
-        UnoFlipGame waitingGame = create_game_with_status(GameStatus.WAITING);
-
-        Assertions.assertThat(sut.getWaitingGames()).hasSize(1).containsExactly(waitingGame);
-    }
-
-    private UnoFlipGame create_game_with_status(GameStatus status) {
-        UnoFlipGame game = mock(UnoFlipGame.class);
-        when(game.getStatus()).thenReturn(status);
-        sut.save(game);
-        return game;
     }
 
     private void then_game_has_one_player() {

@@ -1,18 +1,23 @@
 package tw.waterballsa.gaas.unoflip.usecase;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
 import tw.waterballsa.gaas.unoflip.domain.UnoFlipGame;
 import tw.waterballsa.gaas.unoflip.event.BroadcastEvent;
+import tw.waterballsa.gaas.unoflip.event.PersonalEvent;
 import tw.waterballsa.gaas.unoflip.presenter.GameJoinPresenter;
+import tw.waterballsa.gaas.unoflip.presenter.GameStartPresenter;
 import tw.waterballsa.gaas.unoflip.presenter.StatusCode;
 import tw.waterballsa.gaas.unoflip.repository.GameRepo;
 import tw.waterballsa.gaas.unoflip.service.SseService;
 import tw.waterballsa.gaas.unoflip.vo.GameJoinResult;
+import tw.waterballsa.gaas.unoflip.vo.GameStartResult;
 import tw.waterballsa.gaas.unoflip.vo.JoinResult;
 import tw.waterballsa.gaas.unoflip.vo.Response;
 
@@ -35,11 +40,15 @@ class GameJoinUseCaseTest {
     @Mock
     private GameJoinPresenter gameJoinPresenter;
     @Mock
+    private GameStartPresenter gameStartPresenter;
+    @Mock
     private UnoFlipGame unoFlipGame;
     @Mock
     private UnoFlipGame unoFlipGame1;
     @Mock
     private UnoFlipGame unoFlipGame2;
+    @Mock
+    private BroadcastEvent gameStartedBroadcastEvent;
 
     private List<PlayerInfo> playerInfoList;
     private List<PlayerInfo> playerInfoList1;
@@ -48,12 +57,14 @@ class GameJoinUseCaseTest {
     private Response<JoinResult> joinTable1Response;
     private Response<JoinResult> joinTable2Response;
     private GameJoinUseCase sut;
+    private UnoFlipGame spyGame;
 
 
     @BeforeEach
     void setUp() {
-        sut = new GameJoinUseCase(gameRepo, gameJoinPresenter, sseService);
+        sut = new GameJoinUseCase(gameRepo, gameJoinPresenter, gameStartPresenter, sseService);
     }
+
 
     @Test
     void should_create_new_game_when_no_available_game() {
@@ -75,12 +86,12 @@ class GameJoinUseCaseTest {
     }
 
     @Test
-    void should_send_event() {
-        BroadcastEvent event = given_broadcast_event_for_shadow();
+    void should_send_join_event() {
+        BroadcastEvent joinBroadcastEvent = given_broadcast_event_for_shadow();
 
         when_shadow_join();
 
-        verify(sseService).sendMessage(event);
+        verify(sseService).sendMessage(joinBroadcastEvent);
     }
 
     @Test
@@ -111,6 +122,52 @@ class GameJoinUseCaseTest {
         then_max_should_at_position(2);
 
         then_shadow_and_max_should_in_the_same_game();
+    }
+
+    @Test
+    void should_start_game_when_game_full_after_player_join() {
+        given_already_three_players_in_game();
+        BroadcastEvent joinBroadcastEvent = given_broadcast_event_for_shadow();
+        given_started_broadcast_event();
+        given_started_personal_events();
+
+        when_shadow_join();
+
+        should_start_game();
+        should_send_events_in_order(joinBroadcastEvent);
+    }
+
+    private void should_send_events_in_order(BroadcastEvent joinBroadcastEvent) {
+        InOrder inOrder = inOrder(sseService);
+        inOrder.verify(sseService).sendMessage(joinBroadcastEvent);
+        inOrder.verify(sseService).sendMessage(gameStartedBroadcastEvent);
+        inOrder.verify(sseService, times(4)).sendMessage(isA(PersonalEvent.class));
+    }
+
+    private void given_started_personal_events() {
+        when(gameStartPresenter.personalEvents(isA(GameStartResult.class))).thenReturn(ImmutableList.of(
+                mock(PersonalEvent.class),
+                mock(PersonalEvent.class),
+                mock(PersonalEvent.class),
+                mock(PersonalEvent.class)));
+    }
+
+    private void given_started_broadcast_event() {
+        when(gameStartPresenter.broadcastEvent(isA(GameStartResult.class))).thenReturn(gameStartedBroadcastEvent);
+    }
+
+    private void given_already_three_players_in_game() {
+        spyGame = spy(new UnoFlipGame(1));
+        when(gameRepo.getAvailable()).thenReturn(Optional.of(spyGame));
+        doNothing().when(spyGame).start();
+
+        spyGame.join("player1111", "playerA");
+        spyGame.join("player2222", "playerB");
+        spyGame.join("player3333", "playerC");
+    }
+
+    private void should_start_game() {
+        verify(spyGame).start();
     }
 
     private void when_someone_join() {
