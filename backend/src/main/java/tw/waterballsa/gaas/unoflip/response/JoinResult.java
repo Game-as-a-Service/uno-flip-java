@@ -1,4 +1,6 @@
-package tw.waterballsa.gaas.unoflip.vo;
+package tw.waterballsa.gaas.unoflip.response;
+
+import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
 
 import java.util.List;
 

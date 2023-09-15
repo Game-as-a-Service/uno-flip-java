@@ -1,6 +1,12 @@
 package tw.waterballsa.gaas.unoflip.presenter;
 
 import org.springframework.stereotype.Service;
+import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
+import tw.waterballsa.gaas.unoflip.event.BroadcastEvent;
+import tw.waterballsa.gaas.unoflip.event.EventType;
+import tw.waterballsa.gaas.unoflip.event.JoinBroadcastEvent;
+import tw.waterballsa.gaas.unoflip.response.JoinResult;
+import tw.waterballsa.gaas.unoflip.response.Response;
 import tw.waterballsa.gaas.unoflip.vo.*;
 
 import java.util.List;
@@ -22,24 +28,24 @@ public class GameJoinPresenter {
         List<PlayerInfo> playerInfoList = gameJoinResult.playerInfoList();
 
         PlayerInfo playerInfo = getTargetPlayerInfo(playerInfoList, targetPlayerId);
-        JoinEvent joinEvent = new JoinEvent(targetPlayerId, playerInfo.playerName(), playerInfo.position());
+        JoinBroadcastEvent joinBroadcastEvent = new JoinBroadcastEvent(EventType.JOIN.getCode(), targetPlayerId, playerInfo.name(), playerInfo.position());
 
-        return new BroadcastEvent(getPlayerIds(playerInfoList), joinEvent);
+        return new BroadcastEvent(getPlayerIds(playerInfoList), joinBroadcastEvent);
     }
 
     private List<PlayerInfo> getOtherPlayerInfoList(String targetPlayerId, List<PlayerInfo> playerInfoList) {
         return playerInfoList.stream()
-                .filter(playerInfo -> !targetPlayerId.equals(playerInfo.playerId()))
+                .filter(playerInfo -> !targetPlayerId.equals(playerInfo.id()))
                 .collect(Collectors.toList());
     }
 
     private PlayerInfo getTargetPlayerInfo(List<PlayerInfo> gameJoinResult, String targetPlayerId) {
         return gameJoinResult.stream()
-                .filter(p -> targetPlayerId.equals(p.playerId())).findFirst()
-                .orElseThrow(() -> new RuntimeException("should not happened, player %s not in game join result".formatted(targetPlayerId)));
+                .filter(p -> targetPlayerId.equals(p.id())).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("should not happened, player %s not in game join result".formatted(targetPlayerId)));
     }
 
     private List<String> getPlayerIds(List<PlayerInfo> playerInfoList) {
-        return playerInfoList.stream().map(PlayerInfo::playerId).collect(Collectors.toList());
+        return playerInfoList.stream().map(PlayerInfo::id).collect(Collectors.toList());
     }
 }

@@ -10,13 +10,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import tw.waterballsa.gaas.unoflip.presenter.StatusCode;
 import tw.waterballsa.gaas.unoflip.vo.JoinRequest;
-import tw.waterballsa.gaas.unoflip.vo.JoinResult;
-import tw.waterballsa.gaas.unoflip.vo.PlayerInfo;
-import tw.waterballsa.gaas.unoflip.vo.Response;
+import tw.waterballsa.gaas.unoflip.response.JoinResult;
+import tw.waterballsa.gaas.unoflip.domain.PlayerInfo;
+import tw.waterballsa.gaas.unoflip.response.Response;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -31,10 +32,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @AutoConfigureMockMvc
 public class GameJoinE2ETest {
 
     private final String PLAYER_A_ID = "playerA123";
+
     @Value(value = "${local.server.port}")
     private int port;
 
@@ -42,6 +45,7 @@ public class GameJoinE2ETest {
     private ObjectMapper mapper;
     @Autowired
     private MockMvc mockMvc;
+
     private WebTestClient client;
     private ExecutorService executor;
     private List<String> responseList;
@@ -77,8 +81,8 @@ public class GameJoinE2ETest {
     private void playerA_should_received_two_join_broadcasts() throws InterruptedException {
         countDownLatch.await();
 
-        assertThat(responseList).containsExactly("{\"playerId\":\"playerA123\",\"playerName\":\"PlayerA\",\"position\":1}",
-                "{\"playerId\":\"playerB456\",\"playerName\":\"PlayerB\",\"position\":2}");
+        assertThat(responseList).containsExactly("{\"eventType\":1,\"playerId\":\"playerA123\",\"playerName\":\"PlayerA\",\"position\":1}",
+                "{\"eventType\":1,\"playerId\":\"playerB456\",\"playerName\":\"PlayerB\",\"position\":2}");
     }
 
     private void register_sse_client_for_playerA123() {
@@ -95,7 +99,7 @@ public class GameJoinE2ETest {
 
     private void playerA_and_playerB_should_in_the_same_game(Response<JoinResult> responseOfPlayerA, Response<JoinResult> responseOfPlayerB) {
         assertThat(responseOfPlayerA.payload().tableId()).isEqualTo(responseOfPlayerB.payload().tableId());
-        assertThat(responseOfPlayerB.payload().otherPlayerInfo().stream().map(PlayerInfo::playerId).anyMatch(PLAYER_A_ID::equals)).isTrue();
+        assertThat(responseOfPlayerB.payload().otherPlayerInfo().stream().map(PlayerInfo::id).anyMatch(PLAYER_A_ID::equals)).isTrue();
     }
 
     private void then_join_success(Response<JoinResult> responseOfPlayerA) {
