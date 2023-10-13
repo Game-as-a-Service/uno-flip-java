@@ -1,36 +1,36 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function WaittingJoinHomepage() {
 
     const name = useRef<HTMLInputElement>(null).current?.value || '未命名的玩家';
-    const number = 1;
+    const playerId = useRef<HTMLInputElement>(null).current?.value || '01';
+    const [number, setNumber] = useState(0);
+
     useEffect(() => {
-        // 創建 WebSocket 連接
-        const ws = new WebSocket("ws://localhost:9090/sse/02");
-    
-        ws.onopen = () => {
-            console.log('register');
+        // 創建 EventSource 連接
+        const eventSource = new EventSource("http://localhost:9090/sse/"+playerId);
+
+        eventSource.onopen = () => {
+            console.log('EventSource 連接已打開');
         };
-    
-        // 監聽事件
-        ws.onmessage = (event) => {
-            console.log('test2');
-            const data = JSON.parse(event.data);
-            console.log(data);
+
+        eventSource.onmessage = (event) => {
+            console.log('收到事件：', event.data);
+            const eventData = JSON.parse(event.data); 
+            if(eventData.position){
+            setNumber(eventData.position);}
         };
-        ws.onclose = () => {
-            if (ws.readyState === WebSocket.CLOSED) {
-                // 連接已關閉，執行其他操作
-                console.log('連接已關閉');
-            }
+
+        eventSource.onerror = (error) => {
+            console.error('EventSource 錯誤：', error);
         };
+
         return () => {
-            // 在組件卸載時關閉 WebSocket 連接
-            ws.close();
+            eventSource.close();
         };
-    
+
     }, []);
     return (
         <div className="flex flex-col justify-center items-center">
