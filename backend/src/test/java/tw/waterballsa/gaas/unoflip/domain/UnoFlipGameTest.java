@@ -3,7 +3,11 @@ package tw.waterballsa.gaas.unoflip.domain;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tw.waterballsa.gaas.unoflip.domain.eumns.Card;
 import tw.waterballsa.gaas.unoflip.domain.eumns.GameStatus;
+import tw.waterballsa.gaas.unoflip.vo.DrawCardResult;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,18 +27,18 @@ class UnoFlipGameTest {
 
     @Test
     void should_throw_exception_when_join_same_player() {
-        sut.join("playerId", "playerName");
+        sut.join("actionPlayerId", "playerName");
 
-        Assertions.assertThatThrownBy(() -> sut.join("playerId", "playerName"))
+        Assertions.assertThatThrownBy(() -> sut.join("actionPlayerId", "playerName"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("player already in game");
     }
 
     @Test
     void join_when_game_is_not_full() {
-        sut.join("playerId", "playerName");
+        sut.join("actionPlayerId", "playerName");
 
-        assertThat(sut.getPlayerInfoList()).containsExactly(new PlayerInfo("playerId", "playerName", 1));
+        assertThat(sut.getPlayerInfoList()).containsExactly(new PlayerInfo("actionPlayerId", "playerName", 1));
     }
 
     @Test
@@ -69,6 +73,72 @@ class UnoFlipGameTest {
         then_each_player_should_has_7_cards();
         then_discard_pile_should_has_one_card();
         then_draw_pile_should_has_83_cards();
+    }
+
+    @Test
+    void draw_fail_when_game_not_started() {
+        sut.join("ShadowId", "Shadow");
+
+        Assertions.assertThatThrownBy(() -> sut.draw("ShadowId"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Game is not started");
+    }
+
+    @Test
+    void shadow_draw_fail_when_action_player_is_not_shadow() {
+        given_game_has_player_shadow_max_hannah_archie();
+        given_game_started();
+        given_now_is_max_turn();
+
+        Assertions.assertThatThrownBy(() -> sut.draw("ShadowId"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("It is not ShadowId turn");
+    }
+
+    @Test
+    void draw_success_if_is_shadow_turn() {
+        given_game_has_player_shadow_max_hannah_archie();
+        given_game_started();
+        given_now_is_shadow_turn();
+        Card topCardInDrawPile = get_current_top_card_in_draw_pile();
+
+        when_draw_then_success(topCardInDrawPile);
+        then_shadow_hand_card_has_draw_card(topCardInDrawPile);
+    }
+
+    private void then_shadow_hand_card_has_draw_card(Card topCardInDrawPile) {
+        HandCard shadowHandCard = sut.getPlayers().getPlayerHandCard("ShadowId");
+        Assertions.assertThat(shadowHandCard.getCards()).contains(topCardInDrawPile);
+    }
+
+    private void when_draw_then_success(Card topCardInDrawPile) {
+        DrawCardResult expected = new DrawCardResult("ShadowId", topCardInDrawPile, "MaxId",
+                Arrays.asList("ShadowId", "MaxId", "HannahId", "ArchieId"));
+
+        assertThat(sut.draw("ShadowId")).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    private void given_game_started() {
+        sut.start();
+    }
+
+    private Card get_current_top_card_in_draw_pile() {
+        return sut.getTopDrawCard();
+    }
+
+    private void given_now_is_shadow_turn() {
+        sut.setActionPosition(1);
+    }
+
+    private void given_now_is_max_turn() {
+        sut.setActionPosition(2);
+    }
+
+    private void given_game_has_player_shadow_max_hannah_archie() {
+        sut.join("ShadowId", "Shadow");
+        sut.join("MaxId", "Max");
+        sut.join("HannahId", "Hannah");
+        sut.join("ArchieId", "Archie");
     }
 
     private void then_should_assign_init_player() {
