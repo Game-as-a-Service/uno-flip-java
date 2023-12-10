@@ -2,6 +2,7 @@ package tw.waterballsa.gaas.unoflip.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import tw.waterballsa.gaas.unoflip.domain.eumns.Card;
 
 @Getter
 public class Player {
@@ -20,5 +21,9 @@ public class Player {
 
     public String getId() {
         return playerInfo.id();
+    }
+
+    public void addHandCard(Card card) {
+        handCard.add(card);
     }
 }
