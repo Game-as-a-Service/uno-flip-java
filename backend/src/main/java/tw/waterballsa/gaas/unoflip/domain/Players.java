@@ -35,7 +35,7 @@ public class Players {
     }
 
     public List<String> getIds() {
-        return idMap.values().stream().map(Player::getId).toList();
+        return positionMap.values().stream().map(Player::getId).toList();
     }
 
     public String getPlayerId(int position) {

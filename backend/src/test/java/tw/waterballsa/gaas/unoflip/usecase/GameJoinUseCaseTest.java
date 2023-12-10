@@ -159,7 +159,6 @@ class GameJoinUseCaseTest {
     private void given_already_three_players_in_game() {
         spyGame = spy(new UnoFlipGame(1));
         when(gameRepo.getAvailable()).thenReturn(Optional.of(spyGame));
-        doNothing().when(spyGame).start();
 
         spyGame.join("player1111", "playerA");
         spyGame.join("player2222", "playerB");
